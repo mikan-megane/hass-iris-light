@@ -1,0 +1,15 @@
+{
+  "domain": "iris_light_loupe_page",
+  "name": "Iris Light",
+  "codeowners": [
+    "@mikan_megane"
+  ],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://www.home-assistant.io/integrations/iris_light_loupe_page",
+  "homekit": {},
+  "iot_class": "local_push",
+  "requirements": [],
+  "ssdp": [],
+  "zeroconf": []
+}
