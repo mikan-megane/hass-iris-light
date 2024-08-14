@@ -78,6 +78,8 @@ class Light(LightEntity):
     @property
     def brightness(self) -> int:
         """Return the brightness of this light between 1..255."""
+        if(self._state == 1):
+            return 1
         return self._value_to_brightness(self.BRIGHTNESS_SCALE, self._brightness)
 
     @property
@@ -90,11 +92,14 @@ class Light(LightEntity):
     @property
     def is_on(self) -> bool:
         """Return the on/off state of the light."""
-        return self._state == 2
+        return self._state != 0
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Instruct the light to turn on."""
         _LOGGER.debug(kwargs)
+        if "brightness" in kwargs and kwargs["brightness"] == 1:
+            await self._post_data("night")
+            return
         await self._post_data("on")
         if "brightness" in kwargs:
             self._brightness = math.ceil(
@@ -108,12 +113,10 @@ class Light(LightEntity):
                 )
             )
             await self._post_data("color-temp", self._color_temp)
-        await self.get_update()
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Instruct the light to turn off."""
-        response = await self._post_data("off")
-        await self._set_update(response)
+        await self._post_data("off")
 
     async def _post_data(self, url, value=None) -> ClientResponse:
         """Fetch the latest state of the light."""
@@ -122,6 +125,11 @@ class Light(LightEntity):
             self._url + url,
             json={"value": value},
         )
+
+    async def async_update(self) -> None:
+        """Fetch the latest state of the light."""
+        _LOGGER.debug("fetching update")
+        await self.get_update()
 
     async def get_update(self) -> None:
         """Retrieve the latest update from the specified URL and set the update."""
